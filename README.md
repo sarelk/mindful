@@ -46,6 +46,10 @@ Most software failures begin before implementation—with an unclear problem, an
 
 Mindful Dev makes that thinking visible.
 
+## License
+
+Released under the [MIT License](./LICENSE). Copyright © 2026 Sarel Kaminsky / [thing.im](https://thing.im).
+
 ---
 
 Built for people who would rather spend ten minutes clarifying than ten days rebuilding.

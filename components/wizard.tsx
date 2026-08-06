@@ -41,7 +41,7 @@ export function Wizard({ onExit }: { onExit: () => void }) {
       <button className="back" onClick={step === 0 ? onExit : back}>← Back</button>
       <span className="saved">✓ Draft saved locally</span>
       <div className="nav-actions">
-        {step > 0 && <button className="skip" onClick={next}>Not sure yet · Skip</button>}
+        {step > 0 && <button className="skip" onClick={next} aria-label="Not sure yet, skip this question"><span className="skip-long">Not sure yet · Skip</span><span className="skip-short">Skip</span></button>}
         <PrimaryButton disabled={!allowedToContinue} onClick={next}>{step === LAST_QUESTION_STEP ? "Generate specification" : "Continue"}</PrimaryButton>
       </div>
     </nav>

@@ -26,7 +26,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
         </aside>
       </section>
       <section className="example-strip" id="example"><span>FROM VAGUE IDEA</span><p>“Build me a productivity app”</p><i>→</i><span>TO BUILDABLE SPEC</span><p>Problem, audience, requirements, constraints, risks &amp; milestones</p></section>
-      <footer><span>Think first. Build second.</span><span>Mindful Dev · Your ideas, structured.</span></footer>
+      <footer><span>Think first. Build second.</span><span>Built with care by <a href="https://thing.im" target="_blank" rel="noreferrer">thing.im</a></span></footer>
     </main>
   );
 }

@@ -43,3 +43,4 @@ html,body{max-width:100%;overflow-x:hidden}button,input,textarea{touch-action:ma
 }
 @media(max-height:500px) and (orientation:landscape){.wizard-nav{position:sticky}.wizard-body{padding-bottom:36px}}
 .text-button{text-decoration:none}
+footer a{color:var(--ink);font-weight:650;text-decoration:none}footer a:hover{text-decoration:underline;text-underline-offset:3px}

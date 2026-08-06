@@ -6,17 +6,17 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (productionUrl ? `https://${
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Mindful Dev — Think before you build",
+  title: "Mindful Dev",
   description: "A guided framework for turning vague software ideas into structured engineering specifications.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
   openGraph: {
-    title: "Mindful Dev — Think before you build",
+    title: "Mindful Dev",
     description: "Turn vague ideas into structured engineering specifications.",
     images: [{ url: "/og.png", width: 1714, height: 909, alt: "Mindful Dev — Think before you build" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mindful Dev — Think before you build",
+    title: "Mindful Dev",
     description: "Turn vague ideas into structured engineering specifications.",
     images: ["/og.png"],
   },

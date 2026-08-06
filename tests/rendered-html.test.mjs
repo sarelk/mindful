@@ -14,7 +14,7 @@ test("contains Mindful Dev metadata and landing content", async () => {
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/landing.tsx", import.meta.url), "utf8"),
   ]);
-  assert.match(layout, /Mindful Dev — Think before you build/);
+  assert.match(layout, /title: "Mindful Dev"/);
   assert.match(landing, /Think before/);
   assert.match(landing, /Start thinking/);
   assert.match(landing, /No account\. No AI\./);

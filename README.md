@@ -34,7 +34,11 @@ pnpm build
 
 ## Built with
 
-Next.js App Router · TypeScript · React · Tailwind CSS · Zustand · vinext
+Next.js App Router · TypeScript · React · Tailwind CSS · Zustand
+
+## Deploy
+
+Import the repository into Vercel and keep the detected **Next.js** framework settings. No environment variables or custom output directory are required.
 
 ## Philosophy
 

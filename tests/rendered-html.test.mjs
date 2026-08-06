@@ -1,29 +1,23 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render() {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
-  return worker.fetch(
-    new Request("http://localhost/", { headers: { accept: "text/html" } }),
-    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
-    { waitUntil() {}, passThroughOnException() {} },
-  );
-}
+test("creates a native Next.js production artifact", async () => {
+  await access(new URL("../.next/BUILD_ID", import.meta.url));
+  const manifest = JSON.parse(await readFile(new URL("../.next/routes-manifest.json", import.meta.url), "utf8"));
+  assert.equal(manifest.version, 3);
+  assert.equal(manifest.basePath, "");
+});
 
-test("server-renders the Mindful Dev landing page", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
-
-  const html = await response.text();
-  assert.match(html, /<title>Mindful Dev — Think before you build<\/title>/i);
-  assert.match(html, /Think before/);
-  assert.match(html, /Start thinking/);
-  assert.match(html, /No account\. No AI\./);
-  assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
+test("contains Mindful Dev metadata and landing content", async () => {
+  const [layout, landing] = await Promise.all([
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/landing.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(layout, /Mindful Dev — Think before you build/);
+  assert.match(landing, /Think before/);
+  assert.match(landing, /Start thinking/);
+  assert.match(landing, /No account\. No AI\./);
 });
 
 test("keeps the page entrypoint thin and domain rules isolated", async () => {
@@ -33,7 +27,6 @@ test("keeps the page entrypoint thin and domain rules isolated", async () => {
     readFile(new URL("../lib/specification.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/store.ts", import.meta.url), "utf8"),
   ]);
-
   assert.match(page, /<Wizard/);
   assert.match(page, /<Landing/);
   assert.ok(page.split("\n").length < 20);

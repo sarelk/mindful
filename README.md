@@ -48,7 +48,7 @@ Mindful Dev makes that thinking visible.
 
 ## License
 
-Released under the [MIT License](./LICENSE). Copyright © 2026 Sarel Kaminsky / [thing.im](https://thing.im).
+Released under the [MIT License](./LICENSE). Copyright © 2026 Sarel Kaminsky, [thing.im](https://thing.im).
 
 ---
 

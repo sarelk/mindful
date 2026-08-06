@@ -5,7 +5,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type Answers = {
-  projectType: string; audience: string; problem: string; currentSolution: string;
+  productName: string; projectType: string; audience: string; problem: string; currentSolution: string;
   success: string; requirements: string[]; constraints: string[]; risks: string[]; done: string;
 };
 
@@ -16,7 +16,7 @@ type Store = {
 };
 
 const initialAnswers: Answers = {
-  projectType: "", audience: "", problem: "", currentSolution: "", success: "",
+  productName: "", projectType: "", audience: "", problem: "", currentSolution: "", success: "",
   requirements: [""], constraints: [], risks: [], done: "",
 };
 
@@ -83,6 +83,14 @@ function Landing({ onStart }: { onStart: () => void }) {
   </main>;
 }
 
+function NameStep() {
+  const { answers, setAnswer } = useProjectStore();
+  return <QuestionShell eyebrow="A place to begin" title="Does your idea have a name?" explanation="A working name makes an early idea easier to hold onto and discuss. It does not need to be final—and you can leave this blank." examples={[]} hint="Optional working name">
+    <input className="name-input" autoFocus value={answers.productName || ""} onChange={e => setAnswer("productName", e.target.value)} placeholder="e.g. Northstar, Quiet Inbox, Project Atlas…" />
+    <div className="prompt-notes"><span>Remember:</span><span>· A placeholder is perfectly fine</span><span>· You can rename it later</span></div>
+  </QuestionShell>;
+}
+
 function ChoiceStep({ data }: { data: ChoiceQuestion }) {
   const { answers, setAnswer } = useProjectStore();
   const current = answers[data.key];
@@ -119,32 +127,77 @@ function QuestionShell({ eyebrow, title, explanation, hint, children }: { eyebro
   return <div className="question"><p className="question-eyebrow">{eyebrow}</p><h2>{title}</h2><p className="question-explanation">{explanation}</p><div className="answer-label"><span>{hint}</span><span>Optional notes are welcome</span></div>{children}</div>;
 }
 
+type Guidance = { summary: string; nonGoals: string[]; milestones: string[]; improvements: string[]; clarifications: string[]; surfacedRisks: string[] };
+
+function guidanceFor(a: Answers): Guidance {
+  const kind = a.projectType || "Software project";
+  const audience = a.audience || "an audience still to be defined";
+  const base: Guidance = {
+    summary: `${a.productName ? `${a.productName} is` : "This project is"} a ${kind.toLowerCase()} for ${audience.toLowerCase()}, intended to ${a.success ? a.success.charAt(0).toLowerCase() + a.success.slice(1) : "solve a problem that still needs a measurable outcome"}.`,
+    nonGoals: ["Features outside the first complete user journey", "Integrations that are not required to prove the core value"],
+    milestones: ["Validate the problem with representative users", "Prototype the riskiest workflow", "Build one complete end-to-end path", "Test against the definition of done", "Prepare a small, observable release"],
+    improvements: ["Add capabilities requested by validated users", "Automate repeated work discovered after launch"],
+    clarifications: ["Which requirement proves value fastest?", "What is explicitly out of scope for the first release?"],
+    surfacedRisks: [],
+  };
+  switch (a.projectType) {
+    case "Marketplace": base.nonGoals.push("Supporting every participant category at launch", "Advanced ranking before supply and demand are validated"); base.milestones = ["Choose one narrow market and validate both sides", "Recruit initial supply before opening demand", "Test discovery and matching manually", "Build the first transaction or connection loop", "Measure liquidity, trust, and repeat usage"]; base.improvements.push("Reputation and trust signals", "Matching, payments, disputes, and marketplace analytics"); base.clarifications.push("Who is the supply side and who is the demand side?", "What creates enough trust for the first transaction?", "How will the marketplace solve the cold-start problem?"); base.surfacedRisks.push("A two-sided marketplace can fail when either supply or demand is too thin", "Trust, moderation, and disputes may become core product requirements"); break;
+    case "SaaS": base.nonGoals.push("Multiple pricing tiers before willingness to pay is validated", "Enterprise administration in the first release"); base.milestones = ["Validate the recurring pain and willingness to pay", "Prototype the core recurring workflow", "Build onboarding and the primary value loop", "Add basic billing readiness and usage measurement", "Release to a small customer cohort"]; base.improvements.push("Billing and plan management", "Team roles, integrations, and retention reporting"); base.clarifications.push("What recurring behavior makes this a service rather than a one-time tool?", "What event represents activation?"); break;
+    case "AI Agent": base.nonGoals.push("Fully autonomous high-impact actions", "Supporting every model or tool provider"); base.milestones = ["Define one bounded job and its evaluation set", "Prototype the human-in-the-loop workflow", "Measure accuracy, failure modes, and cost", "Add permissions, auditability, and recovery", "Pilot with supervised users"]; base.improvements.push("Broader tool access after reliability is proven", "Evaluation dashboards and model fallback strategies"); base.surfacedRisks.push("Model output can be inconsistent even when inputs are similar", "Autonomous actions require permissions, audit logs, and safe recovery"); break;
+    case "Mobile App": base.nonGoals.push("Perfect feature parity across every device", "Tablet-specific layouts unless essential"); base.milestones = ["Validate the mobile moment and primary task", "Prototype navigation on a real device", "Build the core flow with local state", "Test permissions, interruptions, and poor connectivity", "Beta test on target devices"]; base.improvements.push("Push notifications where they create real value", "Accessibility and device-specific refinements"); base.clarifications.push("Why must this experience be mobile?", "Which device permissions are truly necessary?"); break;
+    case "API": base.nonGoals.push("A graphical interface beyond documentation and testing", "Premature support for multiple API paradigms"); base.milestones = ["Define consumers and core resource model", "Write the contract and failure semantics", "Implement one versioned happy path", "Add authentication, limits, logs, and tests", "Publish documentation and a reference integration"]; base.improvements.push("SDKs for validated client languages", "Usage analytics, webhooks, and developer tooling"); base.surfacedRisks.push("Breaking contracts can create high migration costs for consumers"); break;
+    case "Chrome Extension": base.nonGoals.push("Support for every browser in the first release", "Broad access to browsing data without a proven need"); base.milestones = ["Validate the browser-context workflow", "Prototype content and popup interactions", "Minimize and document permissions", "Build and test across representative pages", "Prepare store listing and review materials"]; base.improvements.push("Additional browser support", "Sync and organization across devices"); break;
+    case "Internal Tool": base.nonGoals.push("Public-user onboarding and marketing features", "Replacing every adjacent internal system"); base.milestones = ["Map the current process with operators", "Identify the highest-cost manual handoff", "Prototype with real internal data", "Build roles, auditability, and the core workflow", "Pilot with one team and measure time saved"]; base.improvements.push("Additional team workflows", "Operational reporting and approved integrations"); break;
+    case "Automation": base.nonGoals.push("Automating exceptions before the normal path is stable", "Removing human approval from irreversible actions"); base.milestones = ["Document the current trigger, steps, and exceptions", "Measure the manual baseline", "Automate one reversible path", "Add retries, alerts, and human fallback", "Run in parallel before full cutover"]; base.surfacedRisks.push("Silent automation failures can be worse than visible manual work"); break;
+    case "Website": base.nonGoals.push("Application workflows not required by the content goal", "A complex content system before publishing needs are known"); base.milestones = ["Define the primary visitor action", "Create the content hierarchy", "Prototype the key responsive pages", "Build with accessibility and performance budgets", "Validate analytics and launch readiness"]; base.improvements.push("Content experiments informed by visitor behavior", "Search and richer editorial tools"); break;
+    case "CLI": base.nonGoals.push("A graphical interface", "Supporting every operating system before the command model is stable"); base.milestones = ["Define commands, inputs, outputs, and exit codes", "Prototype the primary command", "Add safe defaults and actionable errors", "Test scripting and cross-platform behavior", "Package documentation and releases"]; base.improvements.push("Shell completion and richer output formats", "Plugin or configuration support"); break;
+  }
+  if (a.audience === "Enterprise") { base.nonGoals.push("Custom deployment models before demand is confirmed"); base.clarifications.push("Which roles, approvals, audit records, and procurement requirements apply?"); base.surfacedRisks.push("Enterprise adoption may depend on security review, access controls, and compliance evidence"); }
+  if (a.audience === "Myself") { base.nonGoals.push("Multi-user permissions before personal value is proven"); base.milestones[0] = "Observe and measure your current workflow for one week"; }
+  if (a.audience === "Public Users") { base.clarifications.push("How will abuse, accessibility, support, and moderation be handled?"); base.surfacedRisks.push("Public access increases abuse, support, privacy, and accessibility obligations"); }
+  if (a.currentSolution === "Excel") { base.improvements.push("Structured import and export for existing spreadsheets"); base.clarifications.push("Which spreadsheet flexibility must be preserved?"); }
+  if (a.currentSolution === "Manual work") base.milestones.splice(1, 0, "Measure the manual baseline: time, errors, and handoffs");
+  if (a.currentSolution === "Existing software") base.clarifications.push("Why will users switch, and what migration cost must be overcome?");
+  if (a.currentSolution === "No solution") base.surfacedRisks.push("No current solution may signal an unproven need rather than an open market");
+  if (a.constraints.includes("Offline")) { base.nonGoals.push("Real-time collaboration while disconnected"); base.milestones.splice(-1, 0, "Test sync conflicts, recovery, and offline data integrity"); base.surfacedRisks.push("Offline data needs explicit sync and conflict-resolution rules"); }
+  if (a.constraints.includes("Privacy")) { base.milestones.splice(2, 0, "Map sensitive data and minimize collection"); base.surfacedRisks.push("Sensitive data handling requires retention, deletion, and access policies"); }
+  if (a.constraints.includes("GDPR")) { base.nonGoals.push("Collecting personal data without a documented purpose"); base.clarifications.push("What is the lawful basis, retention period, and deletion workflow?"); }
+  if (a.constraints.includes("Budget")) base.nonGoals.push("Infrastructure and vendors that are not justified by early usage");
+  if (a.constraints.includes("Time")) { base.nonGoals.push("Secondary workflows that delay the first usable release"); base.milestones = base.milestones.slice(0, 4); }
+  if (a.risks.includes("Security")) base.milestones.splice(-1, 0, "Threat-model sensitive flows and test access boundaries");
+  if (a.risks.includes("Scalability")) { base.surfacedRisks.push("Scale targets are undefined until expected users, data volume, and peak load are stated"); base.clarifications.push("What load must the first version handle, and what can be deferred?"); }
+  if (a.risks.includes("Legal")) base.milestones.splice(1, 0, "Validate the legal model before implementation");
+  return { ...base, nonGoals: [...new Set(base.nonGoals)], milestones: [...new Set(base.milestones)].slice(0, 7), improvements: [...new Set(base.improvements)], clarifications: [...new Set(base.clarifications)], surfacedRisks: [...new Set(base.surfacedRisks)] };
+}
+
 function markdown(a: Answers) {
+  const g = guidanceFor(a);
   const reqs = a.requirements.filter(Boolean).map(x => `- ${x}`).join("\n") || "- To be defined";
   const list = (x: string[]) => x.length ? x.map(v => `- ${v}`).join("\n") : "- None identified yet";
-  return `# ${a.projectType || "Untitled Project"} — Engineering Specification\n\n## Executive Summary\nA ${a.projectType || "software project"} for ${a.audience || "a defined audience"}, designed to address: ${a.problem || "Problem to be clarified."}\n\n## Problem Statement\n${a.problem || "To be defined."}\n\n## Target Audience\n${a.audience || "To be defined."}\n\n## Current Alternatives\n${a.currentSolution || "To be defined."}\n\n## Goals\n${a.success || "To be defined."}\n\n## Non Goals\n- Features beyond the first validated workflow\n- Unspecified future integrations\n\n## Functional Requirements\n${reqs}\n\n## Constraints\n${list(a.constraints)}\n\n## Risks\n${list(a.risks)}\n\n## Definition of Done\n${a.done || "To be defined."}\n\n## Suggested Milestones\n1. Validate the problem and primary workflow\n2. Build the smallest end-to-end experience\n3. Test against the definition of done\n4. Refine and prepare for release\n\n## Future Improvements\n- Expand based on observed user needs\n- Revisit deferred requirements after validation`;
+  return `# ${a.productName || a.projectType || "Untitled Project"} — Engineering Specification\n\n## Executive Summary\n${g.summary}\n\n## Problem Statement\n${a.problem || "To be clarified."}\n\n## Target Audience\n${a.audience || "To be clarified."}\n\n## Current Alternatives\n${a.currentSolution || "To be researched."}\n\n## Goals\n${a.success || "A measurable success outcome has not been defined yet."}\n\n## Non Goals\n${list(g.nonGoals)}\n\n## Functional Requirements\n${reqs}\n\n## Constraints\n${list(a.constraints)}\n\n## Risks\n${list([...a.risks, ...g.surfacedRisks])}\n\n## Definition of Done\n${a.done || "A verifiable finish line has not been defined yet."}\n\n## Suggested Milestones\n${g.milestones.map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\n## Future Improvements\n${list(g.improvements)}\n\n## Things Worth Clarifying\n${list(g.clarifications)}`;
 }
 
 function Results({ onBack, onHome }: { onBack: () => void; onHome: () => void }) {
   const { answers } = useProjectStore(); const [copied, setCopied] = useState(false);
+  const guidance = guidanceFor(answers);
   const fields = [answers.projectType, answers.audience, answers.problem, answers.currentSolution, answers.success, answers.requirements.some(Boolean), answers.constraints.length, answers.risks.length, answers.done];
   const score = Math.round(fields.filter(Boolean).length / fields.length * 100); const doc = useMemo(() => markdown(answers), [answers]);
   const missing = [!answers.problem && "A precise problem statement", !answers.success && "A measurable success outcome", !answers.done && "A verifiable finish line"].filter(Boolean) as string[];
   return <main className="results"><Header compact /><div className="result-wrap"><p className="question-eyebrow">Your specification</p><h2>A clearer path forward.</h2><p className="result-intro">You did the thinking. Here is a first engineering brief you can discuss, refine, or build from.</p>
     <section className="score-card"><div className="score-ring" style={{ "--score": `${score * 3.6}deg` } as React.CSSProperties}><span>{score}<small>%</small></span></div><div><span>SPECIFICATION COMPLETENESS</span><h3>{score >= 80 ? "Strong foundation" : score >= 55 ? "Good start" : "Keep clarifying"}</h3><p>{score >= 80 ? "Your project has enough definition to begin planning with confidence." : "A few more precise answers will make this much easier to build."}</p></div></section>
-    <div className="insights"><article><span>Missing information</span><ul>{(missing.length ? missing : ["No critical gaps found"]).map(x => <li key={x}>{x}</li>)}</ul></article><article><span>Possible risks</span><ul>{(answers.risks.length ? answers.risks : ["No risks selected—pressure-test assumptions"]).map(x => <li key={x}>{x}</li>)}</ul></article><article><span>Worth clarifying</span><ul><li>What is explicitly out of scope?</li><li>Which requirement proves value fastest?</li></ul></article></div>
-    <section className="document"><div className="document-bar"><div><span>MARKDOWN SPECIFICATION</span><b>{answers.projectType || "Untitled project"}</b></div><button onClick={async () => { await navigator.clipboard.writeText(doc); setCopied(true); setTimeout(() => setCopied(false), 1600); }}>{copied ? "Copied ✓" : "Copy markdown"}</button></div><pre>{doc}</pre></section>
+    <div className="insights"><article><span>Missing information</span><ul>{(missing.length ? missing : ["No critical gaps found"]).map(x => <li key={x}>{x}</li>)}</ul></article><article><span>Possible risks</span><ul>{([...answers.risks, ...guidance.surfacedRisks].length ? [...answers.risks, ...guidance.surfacedRisks] : ["No risks selected—pressure-test assumptions"]).slice(0, 4).map(x => <li key={x}>{x}</li>)}</ul></article><article><span>Worth clarifying</span><ul>{guidance.clarifications.slice(0, 4).map(x => <li key={x}>{x}</li>)}</ul></article></div>
+    <section className="document"><div className="document-bar"><div><span>MARKDOWN SPECIFICATION</span><b>{answers.productName || answers.projectType || "Untitled project"}</b></div><button onClick={async () => { await navigator.clipboard.writeText(doc); setCopied(true); setTimeout(() => setCopied(false), 1600); }}>{copied ? "Copied ✓" : "Copy markdown"}</button></div><pre>{doc}</pre></section>
     <div className="result-actions"><button className="text-button" onClick={onBack}>← Edit answers</button><button className="primary" onClick={onHome}>Start another <span>→</span></button></div></div></main>;
 }
 
 function Wizard({ onExit }: { onExit: () => void }) {
-  const [step, setStep] = useState(1); const { answers } = useProjectStore();
-  const canNext = step === 1 ? !!answers.projectType : step === 2 ? !!answers.audience : step === 3 ? !!answers.problem.trim() : step === 4 ? !!answers.currentSolution : step === 5 ? !!answers.success.trim() : step === 6 ? answers.requirements.some(Boolean) : step === 9 ? !!answers.done.trim() : true;
-  useEffect(() => { const key = (e: KeyboardEvent) => { if (e.key === "Escape" && step > 1) setStep(s => s - 1); if (e.key === "Enter" && !e.shiftKey && e.target instanceof HTMLTextAreaElement && canNext) { e.preventDefault(); setStep(s => Math.min(10, s + 1)); } }; window.addEventListener("keydown", key); return () => window.removeEventListener("keydown", key); }, [step, canNext]);
+  const [step, setStep] = useState(0); const { answers } = useProjectStore();
+  const canNext = step === 0 ? true : step === 1 ? !!answers.projectType : step === 2 ? !!answers.audience : step === 3 ? !!answers.problem.trim() : step === 4 ? !!answers.currentSolution : step === 5 ? !!answers.success.trim() : step === 6 ? answers.requirements.some(Boolean) : step === 9 ? !!answers.done.trim() : true;
+  useEffect(() => { const key = (e: KeyboardEvent) => { if (e.key === "Escape" && step > 0) setStep(s => s - 1); if (e.key === "Enter" && !e.shiftKey && (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) && canNext) { e.preventDefault(); setStep(s => Math.min(10, s + 1)); } }; window.addEventListener("keydown", key); return () => window.removeEventListener("keydown", key); }, [step, canNext]);
   if (step === 10) return <Results onBack={() => setStep(9)} onHome={onExit} />;
-  return <main className="wizard"><Header compact /><div className="progress-wrap"><div className="progress-meta"><span>YOUR PROJECT BRIEF</span><span>{String(step).padStart(2, "0")} <i>/</i> 09</span></div><div className="progress-track"><i style={{ width: `${step / 9 * 100}%` }} /></div></div>
-    <section className="wizard-body">{choiceQuestions[step] ? <ChoiceStep data={choiceQuestions[step]} /> : step === 6 ? <RequirementsStep /> : <TextStep step={step as 3 | 5 | 9} />}</section>
-    <nav className="wizard-nav"><button className="back" onClick={() => step === 1 ? onExit() : setStep(step - 1)}>← Back</button><span className="saved">✓ Draft saved locally</span><button className="primary" disabled={!canNext} onClick={() => setStep(step + 1)}>{step === 9 ? "Generate specification" : "Continue"} <span>→</span></button></nav>
+  return <main className="wizard"><Header compact /><div className="progress-wrap"><div className="progress-meta"><span>YOUR PROJECT BRIEF</span><span>{String(step + 1).padStart(2, "0")} <i>/</i> 10</span></div><div className="progress-track"><i style={{ width: `${(step + 1) / 10 * 100}%` }} /></div></div>
+    <section className="wizard-body">{step === 0 ? <NameStep /> : choiceQuestions[step] ? <ChoiceStep data={choiceQuestions[step]} /> : step === 6 ? <RequirementsStep /> : <TextStep step={step as 3 | 5 | 9} />}</section>
+    <nav className="wizard-nav"><button className="back" onClick={() => step === 0 ? onExit() : setStep(step - 1)}>← Back</button><span className="saved">✓ Draft saved locally</span><div className="nav-actions">{step > 0 && <button className="skip" onClick={() => setStep(step + 1)}>Not sure yet · Skip</button>}<button className="primary" disabled={!canNext} onClick={() => setStep(step + 1)}>{step === 9 ? "Generate specification" : "Continue"} <span>→</span></button></div></nav>
   </main>;
 }
 

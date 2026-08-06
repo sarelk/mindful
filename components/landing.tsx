@@ -12,7 +12,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
           <p className="support">Most people jump straight into AI and ask it to build something. Mindful Dev helps you understand the problem first, define success, identify constraints, and produce a specification that both humans and AI can build from.</p>
           <div className="hero-actions">
             <PrimaryButton onClick={onStart}>Start thinking</PrimaryButton>
-            <button className="text-button" onClick={() => document.getElementById("example")?.scrollIntoView({ behavior: "smooth" })}>See example <span>↘</span></button>
+            <a className="text-button" href="#example">See example <span aria-hidden="true">↘</span></a>
           </div>
           <p className="privacy"><span>✓</span> No account. No AI. Your ideas stay on your device.</p>
         </div>

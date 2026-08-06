@@ -42,3 +42,4 @@ html,body{max-width:100%;overflow-x:hidden}button,input,textarea{touch-action:ma
   .result-actions{flex-direction:column-reverse}.result-actions .text-button{text-align:left}
 }
 @media(max-height:500px) and (orientation:landscape){.wizard-nav{position:sticky}.wizard-body{padding-bottom:36px}}
+.text-button{text-decoration:none}

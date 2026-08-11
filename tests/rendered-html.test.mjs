@@ -48,6 +48,9 @@ test("includes a separate evidence-led live app workflow", async () => {
   assert.match(page, /live-app/);
   assert.match(wizard, /liveSteps/);
   assert.match(wizard, /What have you already tried/);
+  assert.match(wizard, /What have you shipped/);
+  assert.match(wizard, /What have you noticed/);
+  assert.match(wizard, /What can you take on next/);
   assert.match(playbooks, /Other \/ not listed/);
   assert.match(wizard, /<button className="skip" onClick=\{next\}>Skip/);
   assert.match(playbooks, /Evidence confidence/);

@@ -5,6 +5,7 @@ import { Header, PrimaryButton } from "./chrome";
 import { calculateCompleteness, getMissingInformation } from "@/lib/project";
 import { generateSpecification, getGuidance } from "@/lib/specification";
 import { useProjectStore } from "@/lib/store";
+import { downloadMarkdown } from "@/lib/download";
 
 const SCORE_COPY = [
   { minimum: 80, title: "Strong foundation", detail: "Your project has enough definition to begin planning with confidence." },
@@ -54,7 +55,7 @@ export function Results({ onBack, onHome }: { onBack: () => void; onHome: () => 
         <Insight label="Worth clarifying" items={guidance.clarifications.slice(0, 4)} />
       </div>
       <section className="document">
-        <div className="document-bar"><div><span>MARKDOWN SPECIFICATION</span><b>{answers.productName || answers.projectType || "Untitled project"}</b></div><button type="button" onClick={copyDocument}>{copied ? "Copied ✓" : "Copy markdown"}</button></div>
+        <div className="document-bar"><div><span>MARKDOWN SPECIFICATION</span><b>{answers.productName || answers.projectType || "Untitled project"}</b></div><div className="document-buttons"><button type="button" onClick={copyDocument}>{copied ? "Copied ✓" : "Copy markdown"}</button><button type="button" onClick={() => downloadMarkdown(document, answers.productName || answers.projectType, "specification")}>Download .md ↓</button></div></div>
         <pre>{document}</pre>
       </section>
       <div className="result-actions"><button className="text-button" onClick={onBack}>← Edit answers</button><PrimaryButton onClick={startAnother}>Start another</PrimaryButton></div>

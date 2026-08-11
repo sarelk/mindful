@@ -15,9 +15,12 @@ test("contains Mindful Dev metadata and landing content", async () => {
     readFile(new URL("../components/landing.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(layout, /title: "Mindful Dev"/);
-  assert.match(landing, /Think before/);
-  assert.match(landing, /Start thinking/);
-  assert.match(landing, /No account\. No AI\./);
+  assert.match(landing, /Where are you/);
+  assert.match(landing, /Before Code/);
+  assert.match(landing, /Live App/);
+  assert.match(landing, /Choose your product stage/);
+  assert.match(landing, /No account/);
+  assert.match(landing, /No AI/);
 });
 
 test("keeps the page entrypoint thin and domain rules isolated", async () => {
@@ -34,4 +37,33 @@ test("keeps the page entrypoint thin and domain rules isolated", async () => {
   assert.match(specification, /PROJECT_GUIDANCE/);
   assert.match(specification, /CONTEXT_RULES/);
   assert.match(store, /persist/);
+});
+
+test("includes a separate evidence-led live app workflow", async () => {
+  const [page, wizard, playbooks] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/live-wizard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/live-app.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(page, /live-app/);
+  assert.match(wizard, /liveSteps/);
+  assert.match(wizard, /What have you already tried/);
+  assert.match(playbooks, /Other \/ not listed/);
+  assert.match(wizard, /<button className="skip" onClick=\{next\}>Skip/);
+  assert.match(playbooks, /Evidence confidence/);
+  assert.match(playbooks, /One-week action plan/);
+  assert.match(playbooks, /Build prompt/);
+  assert.match(playbooks, /Submitted context/);
+  assert.match(playbooks, /resolvedChoices/);
+});
+
+test("offers markdown downloads for both result types", async () => {
+  const [beforeResults, liveResults, download] = await Promise.all([
+    readFile(new URL("../components/results.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/live-results.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/download.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(beforeResults, /Download \.md/);
+  assert.match(liveResults, /Download \.md/);
+  assert.match(download, /text\/markdown/);
 });

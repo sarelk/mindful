@@ -1,4 +1,5 @@
 import { Header } from "./chrome";
+import Link from "next/link";
 
 type Mode = "before-code" | "live-app";
 
@@ -25,6 +26,14 @@ export function Landing({ onStart }: { onStart: (mode: Mode) => void }) {
           <span className="simple-description">I have shipped something and want to choose what comes next.</span>
           <span className="simple-arrow" aria-hidden="true">→</span>
         </button>
+      </div>
+
+      <div className="ai-integration">
+        <div>
+          <span>Already working with an AI?</span>
+          <p>Drop one file into your project. Your coding assistant will inspect what exists and recommend the next move—no wizard required.</p>
+        </div>
+        <Link href="/integration">View the integration <span aria-hidden="true">→</span></Link>
       </div>
 
       <p className="simple-privacy">No account · No AI · Drafts stay on your device</p>

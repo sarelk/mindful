@@ -17,6 +17,14 @@ Mindful Dev is a quiet, guided framework for turning vague software ideas into s
 
 Everything stays on your device. No account, backend, or tracking required.
 
+## Use with your coding AI
+
+Download [`MINDFUL.md`](./public/MINDFUL.md), place it in the root of an existing project, and ask your coding assistant:
+
+> Read MINDFUL.md and run the checkup.
+
+The assistant will inspect the repository, distinguish evidence from assumptions, and recommend one scoped next move. It will not change the project until explicitly asked to implement the resulting build brief.
+
 ## Run locally
 
 Requires Node.js 22 or newer.

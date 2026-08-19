@@ -70,3 +70,21 @@ test("offers markdown downloads for both result types", async () => {
   assert.match(liveResults, /Download \.md/);
   assert.match(download, /text\/markdown/);
 });
+
+test("offers a wizard-free AI integration", async () => {
+  const [landing, page, actions, integration] = await Promise.all([
+    readFile(new URL("../components/landing.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/integration/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/integration-actions.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../public/MINDFUL.md", import.meta.url), "utf8"),
+  ]);
+  assert.match(landing, /href="\/integration"/);
+  assert.match(landing, /no wizard required/i);
+  assert.match(page, /MINDFUL\.md/);
+  assert.match(page, /Read MINDFUL\.md and run the checkup/);
+  assert.match(actions, /download="MINDFUL.md"/);
+  assert.match(actions, /clipboard\.writeText/);
+  assert.match(integration, /Inspect this repository now/);
+  assert.match(integration, /Do not start implementation/);
+  assert.match(integration, /One next move/);
+});

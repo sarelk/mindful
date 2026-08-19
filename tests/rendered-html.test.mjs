@@ -82,6 +82,8 @@ test("offers a wizard-free AI integration", async () => {
   assert.match(landing, /no wizard required/i);
   assert.match(page, /MINDFUL\.md/);
   assert.match(page, /Read MINDFUL\.md and run the checkup/);
+  assert.match(page, /integration-social\.png/);
+  assert.match(page, /width: 1200, height: 627/);
   assert.match(actions, /download="MINDFUL.md"/);
   assert.match(actions, /clipboard\.writeText/);
   assert.match(integration, /Inspect this repository now/);

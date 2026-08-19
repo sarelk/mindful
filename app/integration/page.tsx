@@ -7,6 +7,18 @@ import { IntegrationActions } from "@/components/integration-actions";
 export const metadata: Metadata = {
   title: "AI Integration — Mindful Dev",
   description: "A drop-in Markdown checkup for existing software projects and AI coding assistants.",
+  openGraph: {
+    title: "MINDFUL.md — One file. A clearer next move.",
+    description: "Drop MINDFUL.md into an existing project and let your coding AI find the next focused move.",
+    type: "website",
+    images: [{ url: "/integration-social.png", width: 1200, height: 627, alt: "MINDFUL.md finding a clear path through an existing software project" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MINDFUL.md — One file. A clearer next move.",
+    description: "A drop-in project checkup for your coding AI.",
+    images: ["/integration-social.png"],
+  },
 };
 
 export default async function IntegrationPage() {
